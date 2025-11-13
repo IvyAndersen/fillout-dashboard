@@ -6,10 +6,11 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: linear-gradient(145deg, #0f172a 0%, #020617 60%, #000 100%);
+    background: #111827; /* same dark grey as many Fillout components */
     min-height: 100vh;
     padding: 20px;
 }
+
 
 
 /* wrapper */
