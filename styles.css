@@ -6,11 +6,11 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    /* keep the nice purple gradient */
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(145deg, #0f172a 0%, #020617 60%, #000 100%);
     min-height: 100vh;
     padding: 20px;
 }
+
 
 /* wrapper */
 .container {
