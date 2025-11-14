@@ -20,6 +20,25 @@ const N8N_WEBHOOKS = {
     markReceived: 'https://primary-production-191cf.up.railway.app/webhook/deliveries/mark-received'
 };
 
+// Vendor icon mapping
+const VENDOR_ICONS = {
+    'TL Måkestad AS': '🥬',
+    'ASKO VEST AS': '🥫',
+    'Bama Storkjøkken': '🥬',
+    'Måkestad Engros AS': '🥫',
+    'Godt Lokalt': '🥩',
+    'Storcash': '🚚',
+    'Tingstad': '🥡',
+    'BIOPACK': '🥡',
+    'Solberg & Hansen': '☕️',
+    'Lofoten Seaweed Company AS': '🐠'
+};
+
+// Function to get vendor icon
+function getVendorIcon(vendorName) {
+    return VENDOR_ICONS[vendorName] || '📦'; // Default to box if vendor not found
+}
+
 const formList = document.getElementById('formList');
 const welcome = document.getElementById('welcome');
 const formContainer = document.getElementById('formContainer');
@@ -110,14 +129,13 @@ async function showDeliveriesList() {
                 <div class="deliveries-list">
                     ${deliveries.map(delivery => `
                         <div class="delivery-card" onclick="showDeliveryDetails('${delivery.id}')">
-                            <div class="delivery-vendor">
-                                <span class="vendor-icon">📦</span>
-                                <h3>${delivery.vendor}</h3>
+                            <div class="delivery-main">
+                                <div class="delivery-vendor">
+                                    <span class="vendor-icon">${getVendorIcon(delivery.vendor)}</span>
+                                    <h3>${delivery.vendor}</h3>
+                                </div>
+                                <div class="delivery-po">PO #${delivery.po || 'N/A'}</div>
                             </div>
-                            <div class="delivery-date">
-                                ${formatDate(delivery.orderDate)}
-                            </div>
-                            ${delivery.po ? `<div class="delivery-po">PO #${delivery.po}</div>` : ''}
                         </div>
                     `).join('')}
                 </div>
@@ -150,13 +168,11 @@ async function showDeliveryDetails(deliveryId) {
                 <button class="back-btn" onclick="showDeliveriesList()">← Back to Deliveries</button>
                 
                 <div class="delivery-header">
-                    <h2>${data.delivery.vendor}</h2>
+                    <div class="vendor-title">
+                        <span class="vendor-icon-large">${getVendorIcon(data.delivery.vendor)}</span>
+                        <h2>${data.delivery.vendor}</h2>
+                    </div>
                     ${data.delivery.po ? `<span class="po-badge">PO #${data.delivery.po}</span>` : ''}
-                </div>
-                
-                <div class="delivery-info">
-                    <span class="info-label">Delivery Date:</span>
-                    <span class="info-value">${formatDate(data.delivery.orderDate)}</span>
                 </div>
                 
                 <h3>Items (${data.items.length})</h3>
