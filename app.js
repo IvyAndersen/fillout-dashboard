@@ -124,8 +124,13 @@ async function showDeliveriesList() {
     try {
         const response = await fetch(N8N_WEBHOOKS.getDeliveries);
         const data = await response.json();
-        const deliveries = data.deliveries || [];
-        
+
+        // Get raw list from n8n
+        const rawDeliveries = data.deliveries || [];
+
+        // Filter out "empty" placeholder deliveries (id null/undefined)
+        const deliveries = rawDeliveries.filter(d => d && d.id);
+
         if (deliveries.length === 0) {
             formContainer.innerHTML = `
                 <div class="empty-state">
