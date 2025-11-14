@@ -23,9 +23,10 @@ body {
 
 /* HEADER ------------------------------------------------------ */
 .header {
-    text-align: center;
+    text-align: left;
     color: #f9fafb;
     margin-bottom: 24px;
+    padding-left: 12px;
 }
 
 .header h1 {
