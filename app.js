@@ -1,16 +1,16 @@
 const forms = [
-{ name: 'Deliveries', icon: '🚚', url: null, type: 'deliveries' },
-{ name: 'Bar', icon: '🍺', url: 'https://forms.fillout.com/t/aYrnkdjWzius' },
-{ name: 'Take out', icon: '🥡', url: 'https://forms.fillout.com/t/geAFJvD7raus' },
-{ name: 'Drinks', icon: '🥤', url: 'https://forms.fillout.com/t/1L4bMUqvqWus' },
-{ name: 'Cleaning', icon: '🧹', url: 'https://forms.fillout.com/t/nSJgrnjZxhus' },
-{ name: 'Veggies', icon: '🥬', url: 'https://forms.fillout.com/t/wrJnoNGTzLus' },
-{ name: 'Meat', icon: '🥩', url: 'https://forms.fillout.com/t/2KPaCFs1JVus' },
-{ name: 'Dry', icon: '📦', url: 'https://forms.fillout.com/t/rHcnCbpdpkus' },
-{ name: 'Wet', icon: '🥫', url: 'https://forms.fillout.com/t/iE4K5FkACNus' },
-{ name: 'Spices', icon: '🌶️', url: 'https://forms.fillout.com/t/eRBFZW8EK6us' },
-{ name: 'Frozen', icon: '🧊', url: 'https://forms.fillout.com/t/7YUpeDkQ4Kus' },
-{ name: 'Sweet', icon: '🍰', url: 'https://forms.fillout.com/t/9QBF3nCoJnus' }
+    { name: 'Deliveries', icon: '🚚', url: null, type: 'deliveries' },
+    { name: 'Bar', icon: '🍺', url: 'https://forms.fillout.com/t/aYrnkdjWzius' },
+    { name: 'Take out', icon: '🥡', url: 'https://forms.fillout.com/t/geAFJvD7raus' },
+    { name: 'Drinks', icon: '🥤', url: 'https://forms.fillout.com/t/1L4bMUqvqWus' },
+    { name: 'Cleaning', icon: '🧹', url: 'https://forms.fillout.com/t/nSJgrnjZxhus' },
+    { name: 'Veggies', icon: '🥬', url: 'https://forms.fillout.com/t/wrJnoNGTzLus' },
+    { name: 'Meat', icon: '🥩', url: 'https://forms.fillout.com/t/2KPaCFs1JVus' },
+    { name: 'Dry', icon: '📦', url: 'https://forms.fillout.com/t/rHcnCbpdpkus' },
+    { name: 'Wet', icon: '🥫', url: 'https://forms.fillout.com/t/iE4K5FkACNus' },
+    { name: 'Spices', icon: '🌶️', url: 'https://forms.fillout.com/t/eRBFZW8EK6us' },
+    { name: 'Frozen', icon: '🧊', url: 'https://forms.fillout.com/t/7YUpeDkQ4Kus' },
+    { name: 'Sweet', icon: '🍰', url: 'https://forms.fillout.com/t/9QBF3nCoJnus' }
 ];
 
 // n8n Webhook Configuration - REPLACE WITH YOUR ACTUAL URLS
@@ -19,6 +19,23 @@ const N8N_WEBHOOKS = {
     getDetails: 'https://primary-production-191cf.up.railway.app/webhook/deliveries/details',
     markReceived: 'https://primary-production-191cf.up.railway.app/webhook/deliveries/mark-received'
 };
+
+// Staff names for dropdown
+const STAFF_NAMES = [
+    'Elzbieta',
+    'Bohdan',
+    'Lotte',
+    'Steffen',
+    'Helene',
+    'Michelle',
+    'Annabelle',
+    'Julia',
+    'Oliver',
+    'Gustav',
+    'Joel',
+    'Yericka',
+    'Victoria'
+];
 
 // Vendor icon mapping
 const VENDOR_ICONS = {
@@ -162,6 +179,11 @@ async function showDeliveryDetails(deliveryId) {
     try {
         const response = await fetch(`${N8N_WEBHOOKS.getDetails}?id=${deliveryId}`);
         const data = await response.json();
+
+        // Build staff dropdown options
+        const staffOptions = STAFF_NAMES
+            .map(name => `<option value="${name}">${name}</option>`)
+            .join('');
         
         const html = `
             <div class="delivery-details">
@@ -189,14 +211,16 @@ async function showDeliveryDetails(deliveryId) {
                     <h3>✓ Mark as Received</h3>
                     <div class="form-group">
                         <label>Your Name <span class="required">*</span></label>
-                        <input 
-                            type="text" 
+                        <select 
                             id="receivedBy" 
-                            placeholder="Enter your name" 
                             class="form-input"
+                            required
                         >
+                            <option value="">Select your name</option>
+                            ${staffOptions}
+                        </select>
                     </div>
-                    <button onclick="markDeliveryReceived('${deliveryId}')" class="receive-btn">
+                    <button onclick="markDeliveryReceived('${deliveryId}', this)" class="receive-btn">
                         ✓ Confirm & Archive Delivery
                     </button>
                 </div>
@@ -217,16 +241,16 @@ async function showDeliveryDetails(deliveryId) {
     }
 }
 
-async function markDeliveryReceived(deliveryId) {
+async function markDeliveryReceived(deliveryId, btnElement) {
     const receivedBy = document.getElementById('receivedBy').value.trim();
     
     if (!receivedBy) {
-        alert('⚠️ Please enter your name');
+        alert('⚠️ Please select your name');
         return;
     }
     
     // Disable button to prevent double submission
-    const btn = event.target;
+    const btn = btnElement;
     btn.disabled = true;
     btn.textContent = 'Processing...';
     
