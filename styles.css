@@ -376,6 +376,10 @@ body {
     border-radius: 10px;
     overflow: hidden;
     margin-bottom: 30px;
+        /* NEW: make the items area scroll if it gets too tall */
+    max-height: 420px;      /* adjust this height if you want more/less */
+    overflow-y: auto;
+    
 }
 
 .item-row {
