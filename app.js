@@ -156,7 +156,9 @@ async function showDeliveriesList() {
                                     <span class="vendor-icon">${getVendorIcon(delivery.vendor)}</span>
                                     <h3>${delivery.vendor}</h3>
                                 </div>
-                                <div class="delivery-po">PO #${delivery.po || 'N/A'}</div>
+                                <div class="delivery-po">
+                                    📅 ${delivery.orderDate ? formatDate(delivery.orderDate) : 'No Date'}
+                                </div>
                             </div>
                         </div>
                     `).join('')}
