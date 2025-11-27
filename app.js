@@ -76,7 +76,7 @@ forms.forEach((form, index) => {
         if (form.type === 'deliveries') {
             showDeliveriesList();
         } else {
-            loadForm(form.url, index);
+            loadForm(form.url);
         }
     };
     
@@ -84,23 +84,27 @@ forms.forEach((form, index) => {
     formList.appendChild(li);
 });
 
-function loadForm(url, index) {
+function loadForm(url) {
     console.log('Loading form:', url);
     
     // Hide welcome message
     welcome.classList.add('hidden');
     
-    // Clear and create new iframe wrapper
+    // Clear container
     formContainer.innerHTML = '';
-    
+
+    // Make sure container is relative so absolute child is anchored correctly
+    formContainer.style.position = 'relative';
+    formContainer.style.overflow = 'hidden'; // Fillout handles its own internal scroll
+
     const wrapper = document.createElement('div');
-    // No absolute positioning – let it fill and scroll with container
+    // 👇 back to your original full-panel absolute layout
     wrapper.className = 'form-wrapper active';
-    wrapper.style.cssText = 'width: 100%; height: 100%; position: relative;';
+    wrapper.style.cssText = 'left: 0; top: 0; width: 100%; height: 100%; position: absolute;';
     
     const iframe = document.createElement('iframe');
     iframe.src = url;
-    iframe.style.cssText = 'width: 100%; height: 100%; border: 0; display: block;';
+    iframe.style.cssText = 'top: 0; left: 0; width: 100%; height: 100%; position: absolute; border: 0;';
     iframe.setAttribute('allowfullscreen', '');
     iframe.setAttribute('allow', 'camera; microphone');
     
@@ -119,6 +123,9 @@ function loadForm(url, index) {
 // Deliveries Functions
 
 async function showDeliveriesList() {
+    // allow scroll again for our own HTML
+    formContainer.style.overflow = 'auto';
+
     welcome.classList.add('hidden');
     formContainer.innerHTML = '<div class="loading">📦 Loading deliveries...</div>';
     
@@ -126,10 +133,7 @@ async function showDeliveriesList() {
         const response = await fetch(N8N_WEBHOOKS.getDeliveries);
         const data = await response.json();
 
-        // Get raw list from n8n
         const rawDeliveries = data.deliveries || [];
-
-        // Filter out "empty" placeholder deliveries (id null/undefined)
         const deliveries = rawDeliveries.filter(d => d && d.id);
 
         if (deliveries.length === 0) {
@@ -182,13 +186,15 @@ async function showDeliveriesList() {
 }
 
 async function showDeliveryDetails(deliveryId) {
+    // allow scroll for details
+    formContainer.style.overflow = 'auto';
+
     formContainer.innerHTML = '<div class="loading">📋 Loading details...</div>';
     
     try {
         const response = await fetch(`${N8N_WEBHOOKS.getDetails}?id=${deliveryId}`);
         const data = await response.json();
 
-        // Build staff dropdown options
         const staffOptions = STAFF_NAMES
             .map(name => `<option value="${name}">${name}</option>`)
             .join('');
@@ -261,7 +267,6 @@ async function markDeliveryReceived(deliveryId, btnElement) {
         return;
     }
     
-    // Disable button to prevent double submission
     const btn = btnElement;
     btn.disabled = true;
     btn.textContent = 'Processing...';
