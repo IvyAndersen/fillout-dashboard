@@ -241,6 +241,7 @@ async function showDeliveryDetails(deliveryId) {
                         <span class="btn-icon">✓</span>
                         <span class="btn-text">Confirm & Archive Delivery</span>
                     </button>
+                    <div style="height: 40px;"></div>
                 </div>
             </div>
         `;
