@@ -94,12 +94,14 @@ function loadForm(url, index) {
     formContainer.innerHTML = '';
     
     const wrapper = document.createElement('div');
+    // 👇 No absolute positioning here; let it flow and scroll with the container
     wrapper.className = 'form-wrapper active';
-    wrapper.style.cssText = 'left: 0; width: 100%; height: 100%; position: absolute; top: 0;';
+    wrapper.style.cssText = 'width: 100%; height: 100%; position: relative;';
     
     const iframe = document.createElement('iframe');
     iframe.src = url;
-    iframe.style.cssText = 'top: 0; left: 0; width: 100%; height: 100%; position: absolute; border: 0;';
+    // 👇 Also no absolute here
+    iframe.style.cssText = 'width: 100%; height: 100%; border: 0; display: block;';
     iframe.setAttribute('allowfullscreen', '');
     iframe.setAttribute('allow', 'camera; microphone');
     
@@ -201,7 +203,7 @@ async function showDeliveryDetails(deliveryId) {
                         <span class="vendor-icon-large">${getVendorIcon(data.delivery.vendor)}</span>
                         <h2>${data.delivery.vendor}</h2>
                     </div>
-                    <!-- CHANGED: Date Badge instead of PO -->
+                    <!-- Date Badge -->
                     ${data.delivery.orderDate ? `<span class="po-badge">📅 ${formatDate(data.delivery.orderDate)}</span>` : ''}
                 </div>
                 
