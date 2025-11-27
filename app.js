@@ -94,13 +94,12 @@ function loadForm(url, index) {
     formContainer.innerHTML = '';
     
     const wrapper = document.createElement('div');
-    // 👇 No absolute positioning here; let it flow and scroll with the container
+    // No absolute positioning – let it fill and scroll with container
     wrapper.className = 'form-wrapper active';
     wrapper.style.cssText = 'width: 100%; height: 100%; position: relative;';
     
     const iframe = document.createElement('iframe');
     iframe.src = url;
-    // 👇 Also no absolute here
     iframe.style.cssText = 'width: 100%; height: 100%; border: 0; display: block;';
     iframe.setAttribute('allowfullscreen', '');
     iframe.setAttribute('allow', 'camera; microphone');
@@ -201,23 +200,16 @@ async function showDeliveryDetails(deliveryId) {
                 <div class="delivery-header">
                     <div class="vendor-title">
                         <span class="vendor-icon-large">${getVendorIcon(data.delivery.vendor)}</span>
-                        <h2>${data.delivery.vendor}</h2>
+                        <div>
+                            <p class="vendor-label">Delivery from</p>
+                            <h2>${data.delivery.vendor}</h2>
+                        </div>
                     </div>
-                    <!-- Date Badge -->
                     ${data.delivery.orderDate ? `<span class="po-badge">📅 ${formatDate(data.delivery.orderDate)}</span>` : ''}
                 </div>
-                
-                <h3>Items (${data.items.length})</h3>
-                <div class="items-list">
-                    ${data.items.map(item => `
-                        <div class="item-row">
-                            <span class="item-name">${item.name}</span>
-                            <span class="item-qty">Qty: ${item.quantity}</span>
-                        </div>
-                    `).join('')}
-                </div>
-                
-                <div class="receive-section">
+
+                <!-- Mark as received section near the top -->
+                <div class="receive-card">
                     <h3>✓ Mark as Received</h3>
                     <div class="form-group">
                         <label>Your Name <span class="required">*</span></label>
@@ -233,6 +225,16 @@ async function showDeliveryDetails(deliveryId) {
                     <button onclick="markDeliveryReceived('${deliveryId}', this)" class="receive-btn">
                         ✓ Confirm & Archive Delivery
                     </button>
+                </div>
+
+                <h3 class="items-heading">Items (${data.items.length})</h3>
+                <div class="items-list">
+                    ${data.items.map(item => `
+                        <div class="item-row">
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-qty">Qty: ${item.quantity}</span>
+                        </div>
+                    `).join('')}
                 </div>
             </div>
         `;
