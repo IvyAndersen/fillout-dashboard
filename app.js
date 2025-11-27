@@ -227,6 +227,16 @@ async function showDeliveryDetails(deliveryId) {
                             ${staffOptions}
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>Delivery Notes (Optional)</label>
+                        <textarea 
+                            id="deliveryNotes" 
+                            class="form-input form-textarea"
+                            placeholder="e.g., Missing 2 items, damaged packaging, arrived late..."
+                            rows="3"
+                        ></textarea>
+                        <small class="field-hint">Add any issues, discrepancies, or observations about this delivery</small>
+                    </div>
                     <button onclick="markDeliveryReceived('${deliveryId}', this)" class="receive-btn">
                         <span class="btn-icon">✓</span>
                         <span class="btn-text">Confirm & Archive Delivery</span>
@@ -251,6 +261,7 @@ async function showDeliveryDetails(deliveryId) {
 
 async function markDeliveryReceived(deliveryId, btnElement) {
     const receivedBy = document.getElementById('receivedBy').value.trim();
+    const deliveryNotes = document.getElementById('deliveryNotes').value.trim();
 
     if (!receivedBy) {
         alert('⚠️ Please select your name');
@@ -273,7 +284,8 @@ async function markDeliveryReceived(deliveryId, btnElement) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 deliveryId: deliveryId,
-                receivedBy: receivedBy
+                receivedBy: receivedBy,
+                notes: deliveryNotes || null
             })
         });
 
