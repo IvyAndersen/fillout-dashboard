@@ -64,7 +64,7 @@ const formContainer = document.getElementById('formContainer');
 forms.forEach((form, index) => {
     const li = document.createElement('li');
     li.className = 'form-item';
-    
+
     const button = document.createElement('button');
     button.className = 'form-button';
     button.innerHTML = `<span class="form-icon">${form.icon}</span><span>${form.name}</span>`;
@@ -72,50 +72,45 @@ forms.forEach((form, index) => {
         document.querySelectorAll('.form-button').forEach((btn, i) => {
             btn.classList.toggle('active', i === index);
         });
-        
+
         if (form.type === 'deliveries') {
             showDeliveriesList();
         } else {
-            loadForm(form.url);
+            loadForm(form.url, index);
         }
     };
-    
+
     li.appendChild(button);
     formList.appendChild(li);
 });
 
-function loadForm(url) {
+function loadForm(url, index) {
     console.log('Loading form:', url);
-    
+
     // Hide welcome message
     welcome.classList.add('hidden');
-    
-    // Clear container
+
+    // Clear and create new iframe wrapper
     formContainer.innerHTML = '';
 
-    // Make sure container is relative so absolute child is anchored correctly
-    formContainer.style.position = 'relative';
-    formContainer.style.overflow = 'hidden'; // Fillout handles its own internal scroll
-
     const wrapper = document.createElement('div');
-    // 👇 back to your original full-panel absolute layout
     wrapper.className = 'form-wrapper active';
-    wrapper.style.cssText = 'left: 0; top: 0; width: 100%; height: 100%; position: absolute;';
-    
+    wrapper.style.cssText = 'left: 0; width: 100%; height: 100%; position: absolute; top: 0;';
+
     const iframe = document.createElement('iframe');
     iframe.src = url;
     iframe.style.cssText = 'top: 0; left: 0; width: 100%; height: 100%; position: absolute; border: 0;';
     iframe.setAttribute('allowfullscreen', '');
     iframe.setAttribute('allow', 'camera; microphone');
-    
+
     iframe.onload = function() {
         console.log('Form loaded successfully');
     };
-    
+
     iframe.onerror = function() {
         console.error('Error loading form');
     };
-    
+
     wrapper.appendChild(iframe);
     formContainer.appendChild(wrapper);
 }
@@ -123,17 +118,17 @@ function loadForm(url) {
 // Deliveries Functions
 
 async function showDeliveriesList() {
-    // allow scroll again for our own HTML
-    formContainer.style.overflow = 'auto';
-
     welcome.classList.add('hidden');
     formContainer.innerHTML = '<div class="loading">📦 Loading deliveries...</div>';
-    
+
     try {
         const response = await fetch(N8N_WEBHOOKS.getDeliveries);
         const data = await response.json();
 
+        // Get raw list from n8n
         const rawDeliveries = data.deliveries || [];
+
+        // Filter out "empty" placeholder deliveries (id null/undefined)
         const deliveries = rawDeliveries.filter(d => d && d.id);
 
         if (deliveries.length === 0) {
@@ -146,7 +141,7 @@ async function showDeliveriesList() {
             `;
             return;
         }
-        
+
         const html = `
             <div class="deliveries-container">
                 <div class="deliveries-header">
@@ -170,9 +165,9 @@ async function showDeliveriesList() {
                 </div>
             </div>
         `;
-        
+
         formContainer.innerHTML = html;
-        
+
     } catch (error) {
         console.error('Error fetching deliveries:', error);
         formContainer.innerHTML = `
@@ -186,19 +181,17 @@ async function showDeliveriesList() {
 }
 
 async function showDeliveryDetails(deliveryId) {
-    // allow scroll for details
-    formContainer.style.overflow = 'auto';
-
     formContainer.innerHTML = '<div class="loading">📋 Loading details...</div>';
-    
+
     try {
         const response = await fetch(`${N8N_WEBHOOKS.getDetails}?id=${deliveryId}`);
         const data = await response.json();
 
+        // Build staff dropdown options
         const staffOptions = STAFF_NAMES
             .map(name => `<option value="${name}">${name}</option>`)
             .join('');
-        
+
         const html = `
             <div class="delivery-details">
                 <button class="back-btn" onclick="showDeliveriesList()">← Back to Deliveries</button>
@@ -206,16 +199,23 @@ async function showDeliveryDetails(deliveryId) {
                 <div class="delivery-header">
                     <div class="vendor-title">
                         <span class="vendor-icon-large">${getVendorIcon(data.delivery.vendor)}</span>
-                        <div>
-                            <p class="vendor-label">Delivery from</p>
-                            <h2>${data.delivery.vendor}</h2>
-                        </div>
+                        <h2>${data.delivery.vendor}</h2>
                     </div>
-                    ${data.delivery.orderDate ? `<span class="po-badge">📅 ${formatDate(data.delivery.orderDate)}</span>` : ''}
-                </div>
+                    ${data.delivery.po ? `<span class="po-badge">PO #${data.delivery.po}</span>` : ''}
 
-                <!-- Mark as received section near the top -->
-                <div class="receive-card">
+                </div>
+                
+                <h3>Items (${data.items.length})</h3>
+                <div class="items-list">
+                    ${data.items.map(item => `
+                        <div class="item-row">
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-qty">Qty: ${item.quantity}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="receive-section">
                     <h3>✓ Mark as Received</h3>
                     <div class="form-group">
                         <label>Your Name <span class="required">*</span></label>
@@ -232,21 +232,11 @@ async function showDeliveryDetails(deliveryId) {
                         ✓ Confirm & Archive Delivery
                     </button>
                 </div>
-
-                <h3 class="items-heading">Items (${data.items.length})</h3>
-                <div class="items-list">
-                    ${data.items.map(item => `
-                        <div class="item-row">
-                            <span class="item-name">${item.name}</span>
-                            <span class="item-qty">Qty: ${item.quantity}</span>
-                        </div>
-                    `).join('')}
-                </div>
             </div>
         `;
-        
+
         formContainer.innerHTML = html;
-        
+
     } catch (error) {
         console.error('Error loading delivery details:', error);
         formContainer.innerHTML = `
@@ -261,16 +251,17 @@ async function showDeliveryDetails(deliveryId) {
 
 async function markDeliveryReceived(deliveryId, btnElement) {
     const receivedBy = document.getElementById('receivedBy').value.trim();
-    
+
     if (!receivedBy) {
         alert('⚠️ Please select your name');
         return;
     }
-    
+
+    // Disable button to prevent double submission
     const btn = btnElement;
     btn.disabled = true;
     btn.textContent = 'Processing...';
-    
+
     try {
         const response = await fetch(N8N_WEBHOOKS.markReceived, {
             method: 'POST',
@@ -280,9 +271,9 @@ async function markDeliveryReceived(deliveryId, btnElement) {
                 receivedBy: receivedBy
             })
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             alert(`✅ Delivery marked as received by ${receivedBy} and archived!`);
             showDeliveriesList();
@@ -291,7 +282,7 @@ async function markDeliveryReceived(deliveryId, btnElement) {
             btn.disabled = false;
             btn.textContent = '✓ Confirm & Archive Delivery';
         }
-        
+
     } catch (error) {
         console.error('Error marking delivery:', error);
         alert('❌ Error updating delivery. Please try again.');
