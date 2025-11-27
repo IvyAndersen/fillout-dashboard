@@ -201,7 +201,7 @@ async function showDeliveryDetails(deliveryId) {
                         <span class="vendor-icon-large">${getVendorIcon(data.delivery.vendor)}</span>
                         <h2>${data.delivery.vendor}</h2>
                     </div>
-                    ${data.delivery.po ? `<span class="po-badge">PO #${data.delivery.po}</span>` : ''}
+                    ${data.delivery.orderDate ? `<span class="po-badge">📅 ${formatDate(data.delivery.orderDate)}</span>` : ''}
                 </div>
                 
                 <div class="receive-section" style="margin-bottom: 24px;">
@@ -219,7 +219,7 @@ async function showDeliveryDetails(deliveryId) {
                 </div>
                 
                 <h3>Items (${data.items.length})</h3>
-                <div class="items-list">
+                <div class="items-list" style="max-height: 400px; overflow-y: auto; margin-bottom: 24px;">
                     ${data.items.map(item => `
                         <div class="item-row">
                             <span class="item-name">${item.name}</span>
