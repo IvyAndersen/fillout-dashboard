@@ -228,7 +228,8 @@ async function showDeliveryDetails(deliveryId) {
                         </select>
                     </div>
                     <button onclick="markDeliveryReceived('${deliveryId}', this)" class="receive-btn">
-                        ✓ Confirm & Archive Delivery
+                        <span class="btn-icon">✓</span>
+                        <span class="btn-text">Confirm & Archive Delivery</span>
                     </button>
                 </div>
             </div>
@@ -256,10 +257,15 @@ async function markDeliveryReceived(deliveryId, btnElement) {
         return;
     }
 
-    // Disable button to prevent double submission
+    // Disable button and show loading state
     const btn = btnElement;
+    const btnIcon = btn.querySelector('.btn-icon');
+    const btnText = btn.querySelector('.btn-text');
+    
     btn.disabled = true;
-    btn.textContent = 'Processing...';
+    btn.classList.add('loading');
+    if (btnIcon) btnIcon.textContent = '⏳';
+    if (btnText) btnText.textContent = 'Processing...';
 
     try {
         const response = await fetch(N8N_WEBHOOKS.markReceived, {
@@ -274,19 +280,29 @@ async function markDeliveryReceived(deliveryId, btnElement) {
         const result = await response.json();
 
         if (result.success) {
-            alert(`✅ Delivery marked as received by ${receivedBy} and archived!`);
-            showDeliveriesList();
+            // Show success state
+            btn.classList.remove('loading');
+            btn.classList.add('success');
+            if (btnIcon) btnIcon.textContent = '✅';
+            if (btnText) btnText.textContent = 'Archived Successfully!';
+            
+            // Wait a moment before redirecting
+            setTimeout(() => {
+                showDeliveriesList();
+            }, 1000);
         } else {
-            alert('❌ Error updating delivery. Please try again.');
-            btn.disabled = false;
-            btn.textContent = '✓ Confirm & Archive Delivery';
+            throw new Error('Update failed');
         }
 
     } catch (error) {
         console.error('Error marking delivery:', error);
         alert('❌ Error updating delivery. Please try again.');
+        
+        // Reset button state
         btn.disabled = false;
-        btn.textContent = '✓ Confirm & Archive Delivery';
+        btn.classList.remove('loading');
+        if (btnIcon) btnIcon.textContent = '✓';
+        if (btnText) btnText.textContent = 'Confirm & Archive Delivery';
     }
 }
 
