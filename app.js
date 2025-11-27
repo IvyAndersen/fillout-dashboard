@@ -201,25 +201,12 @@ async function showDeliveryDetails(deliveryId) {
                         <span class="vendor-icon-large">${getVendorIcon(data.delivery.vendor)}</span>
                         <h2>${data.delivery.vendor}</h2>
                     </div>
-                    ${data.delivery.orderDate ? `<span class="po-badge">📅 ${formatDate(data.delivery.orderDate)}</span>` : ''}
-                </div>
-                
-                <div class="receive-section" style="margin-bottom: 24px;">
-                    <div class="form-group">
-                        <label>Received By <span class="required">*</span></label>
-                        <select 
-                            id="receivedBy" 
-                            class="form-input"
-                            required
-                        >
-                            <option value="">Select your name</option>
-                            ${staffOptions}
-                        </select>
-                    </div>
+                    ${data.delivery.po ? `<span class="po-badge">PO #${data.delivery.po}</span>` : ''}
+
                 </div>
                 
                 <h3>Items (${data.items.length})</h3>
-                <div class="items-list" style="max-height: 400px; overflow-y: auto; margin-bottom: 24px;">
+                <div class="items-list">
                     ${data.items.map(item => `
                         <div class="item-row">
                             <span class="item-name">${item.name}</span>
@@ -229,6 +216,18 @@ async function showDeliveryDetails(deliveryId) {
                 </div>
                 
                 <div class="receive-section">
+                    <h3>✓ Mark as Received</h3>
+                    <div class="form-group">
+                        <label>Your Name <span class="required">*</span></label>
+                        <select 
+                            id="receivedBy" 
+                            class="form-input"
+                            required
+                        >
+                            <option value="">Select your name</option>
+                            ${staffOptions}
+                        </select>
+                    </div>
                     <button onclick="markDeliveryReceived('${deliveryId}', this)" class="receive-btn">
                         ✓ Confirm & Archive Delivery
                     </button>
