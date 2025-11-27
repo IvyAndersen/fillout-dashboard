@@ -201,8 +201,7 @@ async function showDeliveryDetails(deliveryId) {
                         <span class="vendor-icon-large">${getVendorIcon(data.delivery.vendor)}</span>
                         <h2>${data.delivery.vendor}</h2>
                     </div>
-                    ${data.delivery.po ? `<span class="po-badge">PO #${data.delivery.po}</span>` : ''}
-
+                    ${data.delivery.orderDate ? `<span class="po-badge">📅 ${formatDate(data.delivery.orderDate)}</span>` : ''}
                 </div>
                 
                 <h3>Items (${data.items.length})</h3>
