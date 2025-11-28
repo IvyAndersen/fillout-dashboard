@@ -13,7 +13,7 @@ const forms = [
     { name: 'Sweet', icon: '🍰', url: 'https://forms.fillout.com/t/9QBF3nCoJnus' }
 ];
 
-// n8n Webhook Configuration - REPLACE WITH YOUR ACTUAL URLS
+// n8n Webhook Configuration
 const N8N_WEBHOOKS = {
     getDeliveries: 'https://primary-production-191cf.up.railway.app/webhook/deliveries/this-week',
     getDetails: 'https://primary-production-191cf.up.railway.app/webhook/deliveries/details',
@@ -51,9 +51,19 @@ const VENDOR_ICONS = {
     'Lofoten Seaweed Company AS': '🐠'
 };
 
+// Common issues for quick selection
+const COMMON_ISSUES = [
+    'Missing items',
+    'Damaged packaging',
+    'Arrived late',
+    'Wrong quantities',
+    'Quality issues',
+    'Incomplete order'
+];
+
 // Function to get vendor icon
 function getVendorIcon(vendorName) {
-    return VENDOR_ICONS[vendorName] || '📦'; // Default to box if vendor not found
+    return VENDOR_ICONS[vendorName] || '📦';
 }
 
 const formList = document.getElementById('formList');
@@ -128,7 +138,7 @@ async function showDeliveriesList() {
         // Get raw list from n8n
         const rawDeliveries = data.deliveries || [];
 
-        // Filter out "empty" placeholder deliveries (id null/undefined)
+        // Filter out "empty" placeholder deliveries
         const deliveries = rawDeliveries.filter(d => d && d.id);
 
         if (deliveries.length === 0) {
@@ -137,31 +147,53 @@ async function showDeliveriesList() {
                     <div class="empty-icon">✅</div>
                     <h2>No Pending Deliveries</h2>
                     <p>All deliveries for this week have been received!</p>
+                    <button onclick="showDeliveriesList()" class="retry-btn" style="margin-top: 20px;">
+                        🔄 Refresh
+                    </button>
                 </div>
             `;
             return;
         }
 
+        // Sort deliveries by date (most recent first)
+        deliveries.sort((a, b) => {
+            const dateA = new Date(a.orderDate || 0);
+            const dateB = new Date(b.orderDate || 0);
+            return dateB - dateA;
+        });
+
         const html = `
             <div class="deliveries-container">
                 <div class="deliveries-header">
                     <h2>🚚 Deliveries This Week</h2>
-                    <span class="delivery-count">${deliveries.length} pending</span>
+                    <div class="header-actions">
+                        <span class="delivery-count">${deliveries.length} pending</span>
+                        <button onclick="showDeliveriesList()" class="refresh-btn" title="Refresh">🔄</button>
+                    </div>
                 </div>
                 <div class="deliveries-list">
-                    ${deliveries.map(delivery => `
-                        <div class="delivery-card" onclick="showDeliveryDetails('${delivery.id}')">
-                            <div class="delivery-main">
-                                <div class="delivery-vendor">
-                                    <span class="vendor-icon">${getVendorIcon(delivery.vendor)}</span>
-                                    <h3>${delivery.vendor}</h3>
+                    ${deliveries.map(delivery => {
+                        const itemCount = delivery.itemCount || 0;
+                        return `
+                            <div class="delivery-card" onclick="showDeliveryDetails('${delivery.id}')">
+                                <div class="delivery-main">
+                                    <div class="delivery-vendor">
+                                        <span class="vendor-icon">${getVendorIcon(delivery.vendor)}</span>
+                                        <div>
+                                            <h3>${delivery.vendor}</h3>
+                                            ${itemCount > 0 ? `<span class="item-count-badge">${itemCount} items</span>` : ''}
+                                        </div>
+                                    </div>
+                                    <div class="delivery-meta">
+                                        <div class="delivery-date">
+                                            📅 ${delivery.orderDate ? formatDate(delivery.orderDate) : 'No Date'}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="delivery-po">
-                                    📅 ${delivery.orderDate ? formatDate(delivery.orderDate) : 'No Date'}
-                                </div>
+                                <div class="arrow">→</div>
                             </div>
-                        </div>
-                    `).join('')}
+                        `;
+                    }).join('')}
                 </div>
             </div>
         `;
@@ -192,6 +224,15 @@ async function showDeliveryDetails(deliveryId) {
             .map(name => `<option value="${name}">${name}</option>`)
             .join('');
 
+        // Build quick issue buttons
+        const quickIssueButtons = COMMON_ISSUES
+            .map(issue => `
+                <button type="button" class="quick-issue-btn" onclick="addQuickIssue('${issue}')">
+                    ${issue}
+                </button>
+            `)
+            .join('');
+
         const html = `
             <div class="delivery-details">
                 <button class="back-btn" onclick="showDeliveriesList()">← Back to Deliveries</button>
@@ -216,6 +257,7 @@ async function showDeliveryDetails(deliveryId) {
                 
                 <div class="receive-section">
                     <h3>✓ Mark as Received</h3>
+                    
                     <div class="form-group">
                         <label>Your Name <span class="required">*</span></label>
                         <select 
@@ -227,21 +269,25 @@ async function showDeliveryDetails(deliveryId) {
                             ${staffOptions}
                         </select>
                     </div>
+                    
                     <div class="form-group">
                         <label>Delivery Notes (Optional)</label>
+                        <div class="quick-issues">
+                            ${quickIssueButtons}
+                        </div>
                         <textarea 
                             id="deliveryNotes" 
                             class="form-input form-textarea"
-                            placeholder="e.g., Missing 2 items, damaged packaging, arrived late..."
+                            placeholder="Add any issues, discrepancies, or observations..."
                             rows="3"
                         ></textarea>
-                        <small class="field-hint">Add any issues, discrepancies, or observations about this delivery</small>
+                        <small class="field-hint">💡 Click quick buttons above or type custom notes</small>
                     </div>
+                    
                     <button onclick="markDeliveryReceived('${deliveryId}', this)" class="receive-btn">
                         <span class="btn-icon">✓</span>
                         <span class="btn-text">Confirm & Archive Delivery</span>
                     </button>
-                    <div style="height: 40px;"></div>
                 </div>
             </div>
         `;
@@ -258,6 +304,27 @@ async function showDeliveryDetails(deliveryId) {
             </div>
         `;
     }
+}
+
+// Add quick issue to notes
+function addQuickIssue(issue) {
+    const textarea = document.getElementById('deliveryNotes');
+    const currentValue = textarea.value.trim();
+    
+    // Check if issue already exists
+    if (currentValue.includes(issue)) {
+        return;
+    }
+    
+    // Add issue with proper formatting
+    if (currentValue === '') {
+        textarea.value = '• ' + issue;
+    } else {
+        textarea.value = currentValue + '\n• ' + issue;
+    }
+    
+    // Focus textarea
+    textarea.focus();
 }
 
 async function markDeliveryReceived(deliveryId, btnElement) {
@@ -286,7 +353,8 @@ async function markDeliveryReceived(deliveryId, btnElement) {
             body: JSON.stringify({
                 deliveryId: deliveryId,
                 receivedBy: receivedBy,
-                notes: deliveryNotes || null
+                notes: deliveryNotes || null,
+                receivedAt: new Date().toISOString()
             })
         });
 
@@ -330,3 +398,14 @@ function formatDate(dateString) {
     };
     return date.toLocaleDateString('en-US', options);
 }
+
+// Add keyboard shortcut for refresh (Ctrl/Cmd + R while on deliveries view)
+document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        const deliveriesBtn = document.querySelector('.form-button.active');
+        if (deliveriesBtn && deliveriesBtn.textContent.includes('Deliveries')) {
+            e.preventDefault();
+            showDeliveriesList();
+        }
+    }
+});
