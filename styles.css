@@ -128,37 +128,6 @@ body {
     height: 100%;
 }
 
-/* Scroll down button - positioned relative to content */
-.scroll-down-btn {
-    position: absolute;
-    bottom: 30px;
-    right: 30px;
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    color: #022c22;
-    border: none;
-    border-radius: 50%;
-    font-size: 1.5rem;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
-    transition: all 0.3s ease;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
-
-.scroll-down-btn:hover {
-    transform: translateY(3px);
-    box-shadow: 0 12px 32px rgba(34, 197, 94, 0.6);
-}
-
-.scroll-down-btn:active {
-    transform: translateY(5px);
-}
-
 /* Welcome state when no form selected ------------------------- */
 .welcome {
     display: flex;
@@ -377,37 +346,6 @@ body {
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     position: relative;
-}
-
-/* Scroll down button */
-.scroll-down-btn {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    color: #022c22;
-    border: none;
-    border-radius: 50%;
-    font-size: 1.5rem;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
-    transition: all 0.3s ease;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
-
-.scroll-down-btn:hover {
-    transform: translateY(3px);
-    box-shadow: 0 12px 32px rgba(34, 197, 94, 0.6);
-}
-
-.scroll-down-btn:active {
-    transform: translateY(5px);
 }
 
 .back-btn {
