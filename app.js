@@ -289,6 +289,10 @@ async function showDeliveryDetails(deliveryId) {
                         <span class="btn-text">Confirm & Archive Delivery</span>
                     </button>
                 </div>
+                
+                <button class="scroll-down-btn" onclick="scrollToBottom()" title="Scroll to bottom">
+                    ↓
+                </button>
             </div>
         `;
 
