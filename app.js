@@ -290,9 +290,6 @@ async function showDeliveryDetails(deliveryId) {
                     </button>
                 </div>
             </div>
-            <button class="scroll-down-btn" onclick="scrollToBottom()" title="Scroll to form">
-                ↓
-            </button>
         `;
 
         formContainer.innerHTML = html;
