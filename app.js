@@ -234,7 +234,7 @@ async function showDeliveryDetails(deliveryId) {
             .join('');
 
         const html = `
-            <div class="delivery-details">
+            <div class="delivery-details" id="deliveryDetailsContainer">
                 <button class="back-btn" onclick="showDeliveriesList()">← Back to Deliveries</button>
                 
                 <div class="delivery-header">
@@ -289,11 +289,10 @@ async function showDeliveryDetails(deliveryId) {
                         <span class="btn-text">Confirm & Archive Delivery</span>
                     </button>
                 </div>
-                
-                <button class="scroll-down-btn" onclick="scrollToBottom()" title="Scroll to bottom">
-                    ↓
-                </button>
             </div>
+            <button class="scroll-down-btn" onclick="scrollToBottom()" title="Scroll to form">
+                ↓
+            </button>
         `;
 
         formContainer.innerHTML = html;
@@ -413,3 +412,36 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+// Scroll to bottom function
+function scrollToBottom() {
+    const deliveryDetails = document.getElementById('deliveryDetailsContainer');
+    if (deliveryDetails) {
+        deliveryDetails.scrollTo({
+            top: deliveryDetails.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Show/hide scroll button based on scroll position
+function updateScrollButton() {
+    const deliveryDetails = document.getElementById('deliveryDetailsContainer');
+    const scrollBtn = document.querySelector('.scroll-down-btn');
+    
+    if (deliveryDetails && scrollBtn) {
+        const isNearBottom = deliveryDetails.scrollHeight - deliveryDetails.scrollTop - deliveryDetails.clientHeight < 100;
+        scrollBtn.style.opacity = isNearBottom ? '0' : '1';
+        scrollBtn.style.pointerEvents = isNearBottom ? 'none' : 'auto';
+    }
+}
+
+// Listen for scroll on delivery details
+document.addEventListener('scroll', function(e) {
+    if (e.target.id === 'deliveryDetailsContainer') {
+        updateScrollButton();
+    }
+}, true);
+
+// Check scroll position initially
+setTimeout(updateScrollButton, 100);
