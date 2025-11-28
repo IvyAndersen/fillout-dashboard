@@ -245,6 +245,27 @@ async function showDeliveryDetails(deliveryId) {
                     ${data.delivery.orderDate ? `<span class="po-badge">📅 ${formatDate(data.delivery.orderDate)}</span>` : ''}
                 </div>
                 
+                <div class="receive-section-top">
+                    <h3>✓ Mark as Received</h3>
+                    <div class="receive-form-inline">
+                        <div class="form-group-inline">
+                            <label>Your Name <span class="required">*</span></label>
+                            <select 
+                                id="receivedBy" 
+                                class="form-input"
+                                required
+                            >
+                                <option value="">Select your name</option>
+                                ${staffOptions}
+                            </select>
+                        </div>
+                        <button onclick="markDeliveryReceived('${deliveryId}', this)" class="receive-btn-compact">
+                            <span class="btn-icon">✓</span>
+                            <span class="btn-text">Confirm & Archive</span>
+                        </button>
+                    </div>
+                </div>
+                
                 <h3>Items (${data.items.length})</h3>
                 <div class="items-list">
                     ${data.items.map(item => `
@@ -253,41 +274,6 @@ async function showDeliveryDetails(deliveryId) {
                             <span class="item-qty">Qty: ${item.quantity}</span>
                         </div>
                     `).join('')}
-                </div>
-                
-                <div class="receive-section">
-                    <h3>✓ Mark as Received</h3>
-                    
-                    <div class="form-group">
-                        <label>Your Name <span class="required">*</span></label>
-                        <select 
-                            id="receivedBy" 
-                            class="form-input"
-                            required
-                        >
-                            <option value="">Select your name</option>
-                            ${staffOptions}
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Delivery Notes (Optional)</label>
-                        <div class="quick-issues">
-                            ${quickIssueButtons}
-                        </div>
-                        <textarea 
-                            id="deliveryNotes" 
-                            class="form-input form-textarea"
-                            placeholder="Add any issues, discrepancies, or observations..."
-                            rows="3"
-                        ></textarea>
-                        <small class="field-hint">💡 Click quick buttons above or type custom notes</small>
-                    </div>
-                    
-                    <button onclick="markDeliveryReceived('${deliveryId}', this)" class="receive-btn">
-                        <span class="btn-icon">✓</span>
-                        <span class="btn-text">Confirm & Archive Delivery</span>
-                    </button>
                 </div>
             </div>
         `;
