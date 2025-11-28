@@ -338,7 +338,7 @@ body {
 /* Delivery Details Screen */
 .delivery-details {
     padding: 30px;
-    padding-bottom: 80px;
+    padding-bottom: 40px;
     max-width: 900px;
     margin: 0 auto;
     height: 100%;
@@ -472,20 +472,81 @@ body {
     font-size: 0.9rem;
 }
 
-/* Receive Section */
-.receive-section {
+/* Receive Section - Top Layout */
+.receive-section-top {
     background: radial-gradient(circle at top, #022c22 0%, #020617 60%);
-    padding: 24px;
+    padding: 20px 24px;
     border-radius: 12px;
     border: 1px solid #14532d;
-    margin-bottom: 80px;
+    margin-bottom: 30px;
 }
 
-.receive-section h3 {
+.receive-section-top h3 {
     margin-top: 0;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     color: #bbf7d0;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+}
+
+.receive-form-inline {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.form-group-inline {
+    flex: 1;
+}
+
+.form-group-inline label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #e5e7eb;
+    font-size: 0.95rem;
+}
+
+/* Compact receive button */
+.receive-btn-compact {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: #022c22;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    height: fit-content;
+}
+
+.receive-btn-compact:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.9);
+}
+
+.receive-btn-compact:disabled {
+    background: #4b5563;
+    color: #d1d5db;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.receive-btn-compact.loading {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.receive-btn-compact.success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
 .form-group {
@@ -754,12 +815,13 @@ body {
         align-self: flex-end;
     }
 
-    .quick-issues {
-        gap: 6px;
+    .receive-form-inline {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .quick-issue-btn {
-        font-size: 0.8rem;
-        padding: 5px 10px;
+    .receive-btn-compact {
+        width: 100%;
+        justify-content: center;
     }
 }
