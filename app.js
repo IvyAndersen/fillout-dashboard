@@ -27,10 +27,8 @@ const STAFF_NAMES = [
     'Lotte',
     'Steffen',
     'Helene',
-    'Michelle',
     'Annabelle',
     'Julia',
-    'Oliver',
     'Gustav',
     'Joel',
     'Yericka',
@@ -263,6 +261,19 @@ async function showDeliveryDetails(deliveryId) {
                             <span class="btn-icon">✓</span>
                             <span class="btn-text">Confirm & Archive</span>
                         </button>
+                    </div>
+
+                    <div class="notes-section" style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: #8899a6; font-size: 0.9rem;">Notes & Issues (Optional)</label>
+                        <div class="quick-issues" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+                            ${quickIssueButtons}
+                        </div>
+                        <textarea 
+                            id="deliveryNotes" 
+                            class="form-input" 
+                            style="width: 100%; min-height: 80px; resize: vertical;"
+                            placeholder="Add notes about missing items, quality issues, or damaged goods..."
+                        ></textarea>
                     </div>
                 </div>
                 
