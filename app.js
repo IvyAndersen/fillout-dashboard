@@ -75,8 +75,16 @@ forms.forEach((form, index) => {
 
     const button = document.createElement('button');
     button.className = 'form-button';
-    button.innerHTML = `<span class="form-icon">${form.icon}</span><span>${form.name}</span>`;
-    button.onclick = () => {
+
+    // ✅ FIX: Give the label a class so CSS can apply iPad-safe flex rules.
+    // (This prevents label text from being cut off on iPad Safari.)
+    button.innerHTML = `
+        <span class="form-icon">${form.icon}</span>
+        <span class="form-label">${form.name}</span>
+    `.trim();
+
+    button.addEventListener('click', () => {
+        // Toggle active state
         document.querySelectorAll('.form-button').forEach((btn, i) => {
             btn.classList.toggle('active', i === index);
         });
@@ -86,7 +94,7 @@ forms.forEach((form, index) => {
         } else {
             loadForm(form.url, index);
         }
-    };
+    });
 
     li.appendChild(button);
     formList.appendChild(li);
