@@ -5,6 +5,12 @@
     box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+
 /* PAGE BACKGROUND --------------------------------------------- */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -824,4 +830,13 @@ body {
         width: 100%;
         justify-content: center;
     }
+
+    .form-label {
+  flex: 1;
+  min-width: 0;          /* iPad flex text clipping fix */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 }
