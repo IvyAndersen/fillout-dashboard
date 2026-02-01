@@ -49,15 +49,7 @@ const VENDOR_ICONS = {
     'Lofoten Seaweed Company AS': '🐠'
 };
 
-// Common issues for quick selection
-const COMMON_ISSUES = [
-    'Missing items',
-    'Damaged packaging',
-    'Arrived late',
-    'Wrong quantities',
-    'Quality issues',
-    'Incomplete order'
-];
+
 
 // Function to get vendor icon
 function getVendorIcon(vendorName) {
@@ -109,6 +101,15 @@ function loadForm(url, index) {
     // Clear and create new iframe wrapper
     formContainer.innerHTML = '';
 
+    // Create a loader overlay
+    const loader = document.createElement('div');
+    loader.className = 'form-loader';
+    loader.innerHTML = `
+        <div class="spinner"></div>
+        <p>Connecting to Fillout...</p>
+    `;
+    formContainer.appendChild(loader);
+
     const wrapper = document.createElement('div');
     wrapper.className = 'form-wrapper active';
     wrapper.style.cssText = 'left: 0; width: 100%; height: 100%; position: absolute; top: 0;';
@@ -119,12 +120,16 @@ function loadForm(url, index) {
     iframe.setAttribute('allowfullscreen', '');
     iframe.setAttribute('allow', 'camera; microphone');
 
-    iframe.onload = function() {
+    iframe.onload = function () {
         console.log('Form loaded successfully');
+        // Hide loader and show form with transition
+        loader.style.display = 'none';
+        wrapper.classList.add('visible');
     };
 
-    iframe.onerror = function() {
+    iframe.onerror = function () {
         console.error('Error loading form');
+        loader.innerHTML = '<p>❌ Failed to connect to Fillout. Please check the URL.</p>';
     };
 
     wrapper.appendChild(iframe);
@@ -179,8 +184,8 @@ async function showDeliveriesList() {
                 </div>
                 <div class="deliveries-list">
                     ${deliveries.map(delivery => {
-                        const itemCount = delivery.itemCount || 0;
-                        return `
+            const itemCount = delivery.itemCount || 0;
+            return `
                             <div class="delivery-card" onclick="showDeliveryDetails('${delivery.id}')">
                                 <div class="delivery-main">
                                     <div class="delivery-vendor">
@@ -199,7 +204,7 @@ async function showDeliveriesList() {
                                 <div class="arrow">→</div>
                             </div>
                         `;
-                    }).join('')}
+        }).join('')}
                 </div>
             </div>
         `;
@@ -230,14 +235,7 @@ async function showDeliveryDetails(deliveryId) {
             .map(name => `<option value="${name}">${name}</option>`)
             .join('');
 
-        // Build quick issue buttons
-        const quickIssueButtons = COMMON_ISSUES
-            .map(issue => `
-                <button type="button" class="quick-issue-btn" onclick="addQuickIssue('${issue}')">
-                    ${issue}
-                </button>
-            `)
-            .join('');
+
 
         const html = `
             <div class="delivery-details" id="deliveryDetailsContainer">
@@ -270,19 +268,6 @@ async function showDeliveryDetails(deliveryId) {
                             <span class="btn-text">Confirm & Archive</span>
                         </button>
                     </div>
-
-                    <div class="notes-section" style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; color: #8899a6; font-size: 0.9rem;">Notes & Issues (Optional)</label>
-                        <div class="quick-issues" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
-                            ${quickIssueButtons}
-                        </div>
-                        <textarea 
-                            id="deliveryNotes" 
-                            class="form-input" 
-                            style="width: 100%; min-height: 80px; resize: vertical;"
-                            placeholder="Add notes about missing items, quality issues, or damaged goods..."
-                        ></textarea>
-                    </div>
                 </div>
                 
                 <h3>Items (${data.items.length})</h3>
@@ -311,30 +296,10 @@ async function showDeliveryDetails(deliveryId) {
     }
 }
 
-// Add quick issue to notes
-function addQuickIssue(issue) {
-    const textarea = document.getElementById('deliveryNotes');
-    const currentValue = textarea.value.trim();
-    
-    // Check if issue already exists
-    if (currentValue.includes(issue)) {
-        return;
-    }
-    
-    // Add issue with proper formatting
-    if (currentValue === '') {
-        textarea.value = '• ' + issue;
-    } else {
-        textarea.value = currentValue + '\n• ' + issue;
-    }
-    
-    // Focus textarea
-    textarea.focus();
-}
+
 
 async function markDeliveryReceived(deliveryId, btnElement) {
     const receivedBy = document.getElementById('receivedBy').value.trim();
-    const deliveryNotes = document.getElementById('deliveryNotes').value.trim();
 
     if (!receivedBy) {
         alert('⚠️ Please select your name');
@@ -345,7 +310,7 @@ async function markDeliveryReceived(deliveryId, btnElement) {
     const btn = btnElement;
     const btnIcon = btn.querySelector('.btn-icon');
     const btnText = btn.querySelector('.btn-text');
-    
+
     btn.disabled = true;
     btn.classList.add('loading');
     if (btnIcon) btnIcon.textContent = '⏳';
@@ -358,7 +323,7 @@ async function markDeliveryReceived(deliveryId, btnElement) {
             body: JSON.stringify({
                 deliveryId: deliveryId,
                 receivedBy: receivedBy,
-                notes: deliveryNotes || null,
+                notes: null,
                 receivedAt: new Date().toISOString()
             })
         });
@@ -371,7 +336,7 @@ async function markDeliveryReceived(deliveryId, btnElement) {
             btn.classList.add('success');
             if (btnIcon) btnIcon.textContent = '✅';
             if (btnText) btnText.textContent = 'Archived Successfully!';
-            
+
             // Wait a moment before redirecting
             setTimeout(() => {
                 showDeliveriesList();
@@ -383,7 +348,7 @@ async function markDeliveryReceived(deliveryId, btnElement) {
     } catch (error) {
         console.error('Error marking delivery:', error);
         alert('❌ Error updating delivery. Please try again.');
-        
+
         // Reset button state
         btn.disabled = false;
         btn.classList.remove('loading');
@@ -395,9 +360,9 @@ async function markDeliveryReceived(deliveryId, btnElement) {
 // Helper function
 function formatDate(dateString) {
     const date = new Date(dateString);
-    const options = { 
-        weekday: 'short', 
-        month: 'short', 
+    const options = {
+        weekday: 'short',
+        month: 'short',
         day: 'numeric',
         year: 'numeric'
     };
@@ -430,7 +395,7 @@ function scrollToBottom() {
 function updateScrollButton() {
     const deliveryDetails = document.getElementById('deliveryDetailsContainer');
     const scrollBtn = document.querySelector('.scroll-down-btn');
-    
+
     if (deliveryDetails && scrollBtn) {
         const isNearBottom = deliveryDetails.scrollHeight - deliveryDetails.scrollTop - deliveryDetails.clientHeight < 100;
         scrollBtn.style.opacity = isNearBottom ? '0' : '1';
@@ -439,7 +404,7 @@ function updateScrollButton() {
 }
 
 // Listen for scroll on delivery details
-document.addEventListener('scroll', function(e) {
+document.addEventListener('scroll', function (e) {
     if (e.target.id === 'deliveryDetailsContainer') {
         updateScrollButton();
     }
